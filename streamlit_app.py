@@ -3,7 +3,7 @@ import pandas as pd
 import pydeck as pdk
 
 # Load the data
-final_qtables = pd.read_csv('data.csv')  # Adjust when others run
+final_qtables = pd.read_csv('data.csv')  # Make sure this is the correct path to your data file
 
 # Streamlit app starts here
 st.title('Optimal Driver Routing Plans in Boston')
@@ -16,15 +16,20 @@ weather = st.selectbox('Choose weather', sorted(final_qtables['weather'].unique(
 # Filter data based on user input
 filtered_data = final_qtables[(final_qtables['hour'] == hour) & 
                               (final_qtables['day'] == day) & 
-                              (final_qtables['weather'] == weather)]
+                              (final_qtables['weather'] == weather)].copy()
+
+# Function to assign color based on Q-value
+def assign_color(row, max_q_value):
+    if row['Q'] == max_q_value:
+        return [255, 0, 0, 160]  # Red for the highest Q-value
+    else:
+        return [0, 255, 0, 160]  # Green for other routes
 
 # Find the maximum Q-value within the filtered data
 max_q_value = filtered_data['Q'].max()
 
-# Set the color for each route based on Q-value
-filtered_data['color'] = filtered_data.apply(
-    lambda row: [255, 0, 0, 160] if row['Q'] == max_q_value else [0, 255, 0, 160], axis=1
-)
+# Apply the function to assign colors
+filtered_data['color'] = filtered_data.apply(assign_color, axis=1, max_q_value=max_q_value)
 
 # Map plotting with pydeck
 line_layer = pdk.Layer(
@@ -40,7 +45,7 @@ line_layer = pdk.Layer(
 
 # Set the view for Boston
 view_state = pdk.ViewState(
-    latitude=filtered_data["Start_Latitude"].mean(),  # Center the view on the data
+    latitude=filtered_data["Start_Latitude"].mean(),
     longitude=filtered_data["Start_Longitude"].mean(),
     zoom=11,
     pitch=0,
@@ -50,7 +55,7 @@ view_state = pdk.ViewState(
 st.pydeck_chart(pdk.Deck(
     layers=[line_layer],
     initial_view_state=view_state,
-    map_style="mapbox://styles/mapbox/light-v9",  # Light mode map
+    map_style="mapbox://styles/mapbox/light-v9",
     tooltip={
         "html": "<b>Source:</b> {Source}<br>"
                 "<b>Destination:</b> {Destination}<br>"
