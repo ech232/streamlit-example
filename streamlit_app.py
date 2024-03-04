@@ -2,12 +2,6 @@ import streamlit as st
 import pandas as pd
 import pydeck as pdk
 
-# Assume final_qtables is the DataFrame from the join operation
-final_qtables = pd.read_csv('data.csv') # Change this file name to whatever final table is
-
-# Find the maximum Q-value
-max_q_value = final_qtables['Q'].max()
-
 # Create a new column for color, default to a specific color for all
 default_color = [0, 255, 0, 160]  # Green lines
 highlight_color = [255, 0, 0, 160]  # Red lines for the best Q-value
@@ -27,6 +21,14 @@ weather = st.selectbox('Choose weather', sorted(final_qtables['weather'].unique(
 filtered_data = final_qtables[(final_qtables['hour'] == hour) & 
                               (final_qtables['day'] == day) & 
                               (final_qtables['weather'] == weather)]
+
+# Find the maximum Q-value within the filtered data
+max_q_value = filtered_data['Q'].max()
+
+# Set the color for each route based on Q-value
+filtered_data['color'] = filtered_data.apply(
+    lambda row: [255, 0, 0, 160] if row['Q'] == max_q_value else [0, 255, 0, 160], axis=1
+)
 
 # Map plotting with pydeck
 line_layer = pdk.Layer(
