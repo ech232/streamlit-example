@@ -2,12 +2,8 @@ import streamlit as st
 import pandas as pd
 import pydeck as pdk
 
-# Create a new column for color, default to a specific color for all
-default_color = [0, 255, 0, 160]  # Green lines
-highlight_color = [255, 0, 0, 160]  # Red lines for the best Q-value
-final_qtables['color'] = final_qtables.apply(
-    lambda row: highlight_color if row['Q'] == max_q_value else default_color, axis=1
-)
+# Load the data
+final_qtables = pd.read_csv('data.csv')  # Adjust when others run
 
 # Streamlit app starts here
 st.title('Optimal Driver Routing Plans in Boston')
@@ -61,3 +57,4 @@ st.pydeck_chart(pdk.Deck(
                 "<b>Q-Value:</b> {Q}"
     }
 ))
+
