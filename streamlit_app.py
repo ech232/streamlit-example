@@ -15,7 +15,7 @@ layer = pdk.Layer(
     get_source_position=["Start_Longitude", "Start_Latitude"],
     get_target_position=["End_Longitude", "End_Latitude"],
     get_color="[200, 30, 0, 160]",  # RGBA color of the lines
-    get_width=5,
+    get_width=10,
     pickable=True,
     auto_highlight=True,
 )
