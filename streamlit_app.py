@@ -1,40 +1,37 @@
-import altair as alt
-import numpy as np
-import pandas as pd
 import streamlit as st
+import pandas as pd
+import pydeck as pdk
 
-"""
-# Welcome to Streamlit!
+# Load your data
+data = pd.read_csv('test.csv')
 
-Edit `/streamlit_app.py` to customize this app to your heart's desire :heart:.
-If you have any questions, checkout our [documentation](https://docs.streamlit.io) and [community
-forums](https://discuss.streamlit.io).
+# Streamlit app starts here
+st.title('Optimal Driver Routing Plans in Boston')
 
-In the meantime, below is an example of what you can do with just a few lines of code:
-"""
+# Map plotting with pydeck
+layer = pdk.Layer(
+    "LineLayer",  # Use LineLayer to draw lines between start and end points
+    data,
+    get_source_position=["Start_Longitude", "Start_Latitude"],
+    get_target_position=["End_Longitude", "End_Latitude"],
+    get_color="[200, 30, 0, 160]",  # RGBA color of the lines
+    get_width=5,
+    pickable=True,
+    auto_highlight=True,
+)
 
-num_points = st.slider("Number of points in spiral", 1, 10000, 1100)
-num_turns = st.slider("Number of turns in spiral", 1, 300, 31)
+# Set the view for Boston
+view_state = pdk.ViewState(
+    latitude=data["Start_Latitude"].mean(),  # Center the view on the data
+    longitude=data["Start_Longitude"].mean(),
+    zoom=11,
+    pitch=0,
+)
 
-indices = np.linspace(0, 1, num_points)
-theta = 2 * np.pi * num_turns * indices
-radius = indices
-
-x = radius * np.cos(theta)
-y = radius * np.sin(theta)
-
-df = pd.DataFrame({
-    "x": x,
-    "y": y,
-    "idx": indices,
-    "rand": np.random.randn(num_points),
-})
-
-st.altair_chart(alt.Chart(df, height=700, width=700)
-    .mark_point(filled=True)
-    .encode(
-        x=alt.X("x", axis=None),
-        y=alt.Y("y", axis=None),
-        color=alt.Color("idx", legend=None, scale=alt.Scale()),
-        size=alt.Size("rand", legend=None, scale=alt.Scale(range=[1, 150])),
-    ))
+# Render the map with the routes
+st.pydeck_chart(pdk.Deck(
+    layers=[layer],
+    initial_view_state=view_state,
+    # Tooltip to display route and reward information on hover
+    tooltip={"html": "<b>Start:</b> {Start}<br><b>End:</b> {End}<br><b>Q-Value:</b> {Q-Values}"}
+))
