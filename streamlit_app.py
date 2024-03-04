@@ -43,4 +43,5 @@ st.pydeck_chart(pdk.Deck(
     layers=[layer],
     initial_view_state=view_state,
     map_style="mapbox://styles/mapbox/light-v9",  # Light mode map
-    tooltip={"html": "<b>Source:</b> {Source}<br><b>Destination:</b> {Destination}<br><b>Q-Value:</b> {
+    tooltip={"html": "<b>Source:</b> {Source}<br><b>Destination:</b> {Destination}<br><b>Q-Value:</b> {Q}"}
+))
